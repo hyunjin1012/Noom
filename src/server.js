@@ -16,7 +16,13 @@ const httpServer = http.createServer(app);
 const io = SocketIO(httpServer);
 
 io.on("connection", (socket) => {
-  console.log(socket);
+  socket.onAny((evt) => {
+    console.log(`Socket Event: ${evt}`);
+  });
+  socket.on("enter_room", (roomName, done) => {
+    socket.join(roomName);
+    done();
+  });
 });
 
 const handleListen = () => console.log("Listening on http://localhost:3000");

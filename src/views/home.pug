@@ -9,6 +9,16 @@ html(lang="en")
     body 
         header 
             h1 Noom
-        main 
+        main
+            #welcome 
+                form
+                    input(type="text", placeholder="Room name?", required)
+                    button Enter Room 
+            #room 
+                h3 
+                ul 
+                form
+                    input(type="text", placeholder="Type in your message...", required)
+                    button Send    
         script(src="/socket.io/socket.io.js")
         script(src="/public/js/app.js") 
