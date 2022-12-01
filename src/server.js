@@ -29,6 +29,10 @@ io.on("connection", (socket) => {
       socket.to(room).emit("bye");
     });
   });
+  socket.on("new_message", (msg, room, done) => {
+    socket.to(room).emit("new_message", msg);
+    done();
+  });
 });
 
 const handleListen = () => console.log("Listening on http://localhost:3000");
