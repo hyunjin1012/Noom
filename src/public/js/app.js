@@ -26,12 +26,12 @@ function handleMessageSubmit(evt) {
   input.value = "";
 }
 
-function showRoom(nickName) {
+function showRoom(nick) {
   welcome.hidden = true;
   room.hidden = false;
   const h3 = room.querySelector("h3");
   h3.innerText = `Room ${roomName}`;
-  addMessage(`Welcome, ${nickName}`);
+  addMessage(`Welcome, ${nick}`);
   const form = room.querySelector("form");
   form.addEventListener("submit", handleMessageSubmit);
 }
@@ -49,12 +49,12 @@ function handleRoomSubmit(evt) {
 
 welcomeForm.addEventListener("submit", handleRoomSubmit);
 
-socket.on("welcome", (nickName) =>
-  addMessage(`${nickName} joined the conversation.`)
+socket.on("welcome", (nick) =>
+  addMessage(`${nick} joined the conversation.`)
 );
 
-socket.on("bye", (nickName) => {
-  addMessage(`${nickName} left the conversation.`);
+socket.on("bye", (nick) => {
+  addMessage(`${nick} left the conversation.`);
 });
 
-socket.on("new_message", (nickName, msg) => addMessage(`${nickName}: ${msg}`));
+socket.on("new_message", (nick, msg) => addMessage(`${nick}: ${msg}`));
