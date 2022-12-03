@@ -15,21 +15,42 @@ console.log("hello");
 const httpServer = http.createServer(app);
 const io = SocketIO(httpServer);
 
+function publicRooms() {
+  const {
+    sockets: {
+      adapter: { sids, rooms },
+    },
+  } = io;
+  const publicRooms = [];
+  rooms.forEach((_, key) => {
+    if (sids.get(key) === undefined) {
+      publicRooms.push(key);
+    }
+  });
+  return publicRooms;
+}
+
 io.on("connection", (socket) => {
   socket["nickName"] = "Anonymous";
+  io.sockets.emit("room_change", publicRooms());
   socket.onAny((evt) => {
     console.log(`Socket Event: ${evt}`);
+    console.log(io.sockets.adapter);
   });
   socket.on("enter_room", (roomName, nickName, done) => {
     socket.join(roomName);
     socket.nickName = nickName;
     done(nickName);
+    io.sockets.emit("room_change", publicRooms());
     socket.to(roomName).emit("welcome", nickName);
   });
   socket.on("disconnecting", () => {
     socket.rooms.forEach((room) => {
       socket.to(room).emit("bye", socket.nickName);
     });
+  });
+  socket.on("disconnect", () => {
+    io.sockets.emit("room_change", publicRooms());
   });
   socket.on("new_message", (msg, room, nickName, done) => {
     socket.to(room).emit("new_message", nickName, msg);

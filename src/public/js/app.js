@@ -49,12 +49,20 @@ function handleRoomSubmit(evt) {
 
 welcomeForm.addEventListener("submit", handleRoomSubmit);
 
-socket.on("welcome", (nick) =>
-  addMessage(`${nick} joined the conversation.`)
-);
+socket.on("welcome", (nick) => addMessage(`${nick} joined the conversation.`));
 
 socket.on("bye", (nick) => {
   addMessage(`${nick} left the conversation.`);
 });
 
 socket.on("new_message", (nick, msg) => addMessage(`${nick}: ${msg}`));
+
+socket.on("room_change", (publicRooms) => {
+  const ul = document.querySelector("#room_list ul");
+  ul.innerHTML = null;
+  publicRooms.map((room) => {
+    const li = document.createElement("li");
+    li.innerText = room;
+    ul.append(li);
+  });
+});
