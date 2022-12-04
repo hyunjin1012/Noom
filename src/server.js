@@ -24,10 +24,14 @@ function publicRooms() {
   const publicRooms = [];
   rooms.forEach((_, key) => {
     if (sids.get(key) === undefined) {
-      publicRooms.push(key);
+      publicRooms.push({ name: key, size: roomSize(key) });
     }
   });
   return publicRooms;
+}
+
+function roomSize(roomName) {
+  return io.sockets.adapter.rooms.get(roomName)?.size;
 }
 
 io.on("connection", (socket) => {
@@ -35,18 +39,17 @@ io.on("connection", (socket) => {
   io.sockets.emit("room_change", publicRooms());
   socket.onAny((evt) => {
     console.log(`Socket Event: ${evt}`);
-    console.log(io.sockets.adapter);
   });
   socket.on("enter_room", (roomName, nickName, done) => {
     socket.join(roomName);
     socket.nickName = nickName;
-    done(nickName);
+    done(nickName, roomName, roomSize(roomName));
     io.sockets.emit("room_change", publicRooms());
-    socket.to(roomName).emit("welcome", nickName);
+    socket.to(roomName).emit("welcome", nickName, roomSize(roomName));
   });
   socket.on("disconnecting", () => {
     socket.rooms.forEach((room) => {
-      socket.to(room).emit("bye", socket.nickName);
+      socket.to(room).emit("bye", socket.nickName, roomSize(room) - 1);
     });
   });
   socket.on("disconnect", () => {
@@ -55,6 +58,13 @@ io.on("connection", (socket) => {
   socket.on("new_message", (msg, room, nickName, done) => {
     socket.to(room).emit("new_message", nickName, msg);
     done();
+  });
+  socket.on("leave", (roomName) => {
+    socket.rooms.forEach((room) => {
+      socket.to(room).emit("bye", socket.nickName, roomSize(room) - 1);
+    });
+    socket.leave(roomName);
+    io.sockets.emit("room_change", publicRooms());
   });
 });
 

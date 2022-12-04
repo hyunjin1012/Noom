@@ -26,11 +26,14 @@ function handleMessageSubmit(evt) {
   input.value = "";
 }
 
-function showRoom(nick) {
+function showRoom(nick, roomname, size) {
   welcome.hidden = true;
   room.hidden = false;
   const h3 = room.querySelector("h3");
-  h3.innerText = `Room ${roomName}`;
+  roomName = roomname;
+  h3.innerText = `Room ${roomName} (${size})`;
+  const ul = room.querySelector("ul");
+  ul.innerHTML = null;
   addMessage(`Welcome, ${nick}`);
   const form = room.querySelector("form");
   form.addEventListener("submit", handleMessageSubmit);
@@ -49,9 +52,15 @@ function handleRoomSubmit(evt) {
 
 welcomeForm.addEventListener("submit", handleRoomSubmit);
 
-socket.on("welcome", (nick) => addMessage(`${nick} joined the conversation.`));
+socket.on("welcome", (nick, size) => {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${size})`;
+  addMessage(`${nick} joined the conversation.`);
+});
 
-socket.on("bye", (nick) => {
+socket.on("bye", (nick, size) => {
+  const h3 = room.querySelector("h3");
+  h3.innerText = `Room ${roomName} (${size})`;
   addMessage(`${nick} left the conversation.`);
 });
 
@@ -62,7 +71,27 @@ socket.on("room_change", (publicRooms) => {
   ul.innerHTML = null;
   publicRooms.map((room) => {
     const li = document.createElement("li");
-    li.innerText = room;
-    ul.append(li);
+    const button = document.createElement("button");
+    li.innerText = `${room.name} (${room.size})`;
+    button.innerText = "Join";
+    ul.append(li, button);
+    if (roomName === room.name) {
+      button.hidden = true;
+    }
+    button.addEventListener("click", () => {
+      const input = document.createElement("input");
+      const submit = document.createElement("button");
+      submit.innerText = "Join";
+      input.placeholder = "Your nickname?";
+      input.required = true;
+      li.append(input, submit);
+      button.hidden = true;
+      submit.addEventListener("click", () => {
+        if (roomName) {
+          socket.emit("leave", roomName);
+        }
+        socket.emit("enter_room", room.name, input.value, showRoom);
+      });
+    });
   });
 });
