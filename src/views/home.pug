@@ -10,13 +10,17 @@ html(lang="en")
         header 
             h1 Noom
         main
+            #myStream 
+                    video#myFace(autoplay, playsinline, muted, width="400", height="400") 
+                    button#mute Mute 
+                    button#camera Camera Off
             #welcome 
                 form
                     input#roomName(type="text", placeholder="Room name?", required)
                     input#nickName(type="text", placeholder="Your nickname?", required)
                     button Enter Room 
             #room 
-                h3 
+                h3
                 ul 
                 form
                     input(type="text", placeholder="Type in your message...", required)

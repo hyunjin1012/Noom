@@ -1,5 +1,52 @@
 const socket = io();
 
+//video chat
+const myFace = document.getElementById("myFace");
+const muteBtn = document.getElementById("mute");
+const cameraBtn = document.getElementById("camera");
+
+let myStream;
+let muted = false;
+let cameraOff = false;
+
+async function getMedia() {
+  try {
+    myStream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: true,
+    });
+    myFace.srcObject = myStream;
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+getMedia();
+
+function handleMuteClick() {
+  if (!muted) {
+    muteBtn.innerText = "Unmute";
+    muted = true;
+  } else {
+    muteBtn.innerText = "Mute";
+    muted = false;
+  }
+}
+
+function handleCameraClick() {
+  if (cameraOff) {
+    cameraBtn.innerText = "Camera Off";
+    cameraOff = false;
+  } else {
+    cameraBtn.innerText = "Camera On";
+    cameraOff = true;
+  }
+}
+
+muteBtn.addEventListener("click", handleMuteClick);
+cameraBtn.addEventListener("click", handleCameraClick);
+
+//text chat
 const welcome = document.getElementById("welcome");
 const welcomeForm = welcome.querySelector("form");
 const room = document.getElementById("room");
@@ -45,7 +92,14 @@ function handleRoomSubmit(evt) {
   const nickNameInput = welcomeForm.querySelector("#nickName");
   roomName = roomNameInput.value;
   nickName = nickNameInput.value;
-  socket.emit("enter_room", roomNameInput.value, nickNameInput.value, showRoom);
+  //   localStorage.setItem("uuid", Math.random.toString(24) + new Date());
+  socket.emit(
+    "enter_room",
+    roomNameInput.value,
+    nickNameInput.value,
+    // localStorage.getItem("uuid"),
+    showRoom
+  );
   roomNameInput.value = "";
   nickNameInput.value = "";
 }
@@ -90,7 +144,15 @@ socket.on("room_change", (publicRooms) => {
         if (roomName) {
           socket.emit("leave", roomName);
         }
-        socket.emit("enter_room", room.name, input.value, showRoom);
+        nickName = input.value;
+        // localStorage.setItem("uuid", Math.random.toString(24) + new Date());
+        socket.emit(
+          "enter_room",
+          room.name,
+          nickName,
+          //   localStorage.getItem("uuid"),
+          showRoom
+        );
       });
     });
   });
