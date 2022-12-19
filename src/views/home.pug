@@ -4,21 +4,23 @@ html(lang="en")
         meta(charset="UTF-8")
         meta(http-equiv="X-UA-Compatible", content="IE=edge")
         meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        title Noom
+        title Boom
         link(rel="stylesheet", href="https://unpkg.com/mvp.css")
     body 
         header 
-            h1 Noom
+            h1 Boom
         main
-            #myStream 
-                    video#myFace(autoplay, playsinline, muted, width="400", height="400") 
-                    button#mute Mute 
-                    button#camera Camera Off
             #welcome 
                 form
                     input#roomName(type="text", placeholder="Room name?", required)
                     input#nickName(type="text", placeholder="Your nickname?", required)
                     button Enter Room 
+            #call 
+                    video#myFace(autoplay, playsinline, width="400", height="400") 
+                    button#mute Mute 
+                    button#camera Camera Off
+                    select#cameras
+                    video#peerFace(autoplay, playsinline,width="400", height="400")
             #room 
                 h3
                 ul 

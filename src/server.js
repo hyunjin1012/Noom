@@ -53,6 +53,15 @@ io.on("connection", (socket) => {
     io.sockets.emit("room_change", publicRooms());
     socket.to(roomName).emit("welcome", nickName, roomSize(roomName));
   });
+  socket.on("offer", (offer, roomName) =>
+    socket.to(roomName).emit("offer", offer)
+  );
+  socket.on("answer", (answer, roomName) => {
+    socket.to(roomName).emit("answer", answer);
+  });
+  socket.on("ice", (ice, roomName) => {
+    socket.to(roomName).emit("ice", ice);
+  });
   socket.on("disconnecting", () => {
     socket.rooms.forEach((room) => {
       socket.to(room).emit("bye", socket.nickName, roomSize(room) - 1);
@@ -61,8 +70,8 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     io.sockets.emit("room_change", publicRooms());
   });
-  socket.on("new_message", (msg, room, nickName, done) => {
-    socket.to(room).emit("new_message", nickName, msg);
+  socket.on("new_message", (msg, roomName, nickName, done) => {
+    socket.to(roomName).emit("new_message", nickName, msg);
     done();
   });
   socket.on("leave", (roomName) => {
